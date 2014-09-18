@@ -161,6 +161,19 @@ if (!TurtleGraphics) {
         return Math.sqrt(this[0] * this[0] + this[1] * this[1] + this[2] * this[2]);
     };
 
+    // Create a canvas to save the turtle canvas at certain states
+    var canvas_cache = document.createElement('canvas');
+    canvas_cache.id = "CanvasCache";
+    //document.body.appendChild(canvas_cache);
+
+
+    function setUpCanvasCache(canvas_width, canvas_height){
+        canvas_cache.width  = canvas_width;
+        canvas_cache.height = canvas_height;
+    }
+
+    setUpCanvasCache(500, 500);
+
     allDone = function () {
         var done = true, tix, theT;
         for (tix = 0; tix < TurtleGraphics.turtleList.length; tix = tix + 1) {
@@ -213,6 +226,14 @@ if (!TurtleGraphics) {
             }
             //console.log(tix + " : " + t.clearPoint + " to " + t.aCount)
             for (i = t.clearPoint; (i <= t.aCount || t.turtleCanvas.delay === 0) && i < t.drawingEvents.length; i = i + 1) {
+
+                // Load image cache on first iteration of loop
+                if(i == t.clearPoint){
+                    context.scale(1, -1);
+                    context.drawImage(canvas_cache,-canvas_cache.width / 2,-canvas_cache.height / 2);
+                    context.scale(1, -1);
+                }
+
                 if (i > t.aCount) {
                     //If se jump past aCount, jump it ahead
                     t.aCount = i;
@@ -339,6 +360,21 @@ if (!TurtleGraphics) {
                     //console.log('unknown op: ' + oper[0]);
                     //} // end of oper[0] test
                 } // end of if ts < render clock
+
+                // Create cache point from which to start next render loop
+                if (i == t.aCount){
+                    t.clearPoint = i;
+                    var cache_context = canvas_cache.getContext('2d');
+
+                    //context.restore();
+                    //context.translate(context.canvas.width / 2, context.canvas.height / 2);
+                    //context.scale(1, 1);
+                    //context.save();
+
+                    cache_context.drawImage(context.canvas,0,0);
+
+                    canvas_cache = cache_context.canvas;
+                }
             }
             // end of for
             // console.log(TurtleGraphics.renderClock + " / " + t.aCount)
@@ -462,6 +498,7 @@ if (!TurtleGraphics) {
         this.ury = this.canvas.height / 2;
         this.renderCounter = 1;
         this.clearPoint = 0;
+        this.imageCache = new Image();
         this.timeFactor = 5;
         if (TurtleGraphics.defaults.animate) {
             this.delay = 5 * this.timeFactor;
@@ -562,8 +599,8 @@ if (!TurtleGraphics) {
         } else {
             this.context.translate(-llx, -ury);
         }
-        xlinescale = (urx - llx) / this.canvas.width;
-        ylinescale = (ury - lly) / this.canvas.height;
+        var xlinescale = (urx - llx) / this.canvas.width,
+            ylinescale = (ury - lly) / this.canvas.height;
         this.xptscale = xlinescale;
         this.yptscale = ylinescale;
         this.lineScale = Math.min(xlinescale, ylinescale);
@@ -1185,6 +1222,7 @@ if (!TurtleGraphics) {
             this.context.fillText(theText, this.position[0], -this.position[1]);
             this.context.scale(1, -1);
         } else {
+            var fontspec;
             if (font) {
                 fontspec = font.v;
             }
