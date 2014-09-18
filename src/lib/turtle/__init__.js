@@ -11,11 +11,11 @@ var TurtleGraphics;
 if (!TurtleGraphics) {
     TurtleGraphics = {
         doneDelegates: [],
-        fadeOnExit   : true,
-        defaults     : {
+        fadeOnExit: true,
+        defaults: {
             canvasID: "mycanvas",
-            degrees : true,
-            animate : true
+            degrees: true,
+            animate: true
         }
     };
 }
@@ -31,7 +31,7 @@ if (!TurtleGraphics) {
         clear_canvas;
 
     // Create a 3d Vector class for manipulating turtle heading, and position.
-    function Vector (x, y, z) {
+    function Vector(x, y, z) {
         var i;
         if ((typeof x).toLowerCase() === "number") {
             Array.prototype.push.call(this, x);
@@ -167,8 +167,8 @@ if (!TurtleGraphics) {
     //document.body.appendChild(canvas_cache);
 
 
-    function setUpCanvasCache(canvas_width, canvas_height){
-        canvas_cache.width  = canvas_width;
+    function setUpCanvasCache(canvas_width, canvas_height) {
+        canvas_cache.width = canvas_width;
         canvas_cache.height = canvas_height;
     }
 
@@ -182,6 +182,7 @@ if (!TurtleGraphics) {
         }
         return done;
     };
+
     //
     //  This is the function that provides the animation
     //
@@ -228,9 +229,9 @@ if (!TurtleGraphics) {
             for (i = t.clearPoint; (i <= t.aCount || t.turtleCanvas.delay === 0) && i < t.drawingEvents.length; i = i + 1) {
 
                 // Load image cache on first iteration of loop
-                if(i == t.clearPoint){
+                if (i == t.clearPoint) {
                     context.scale(1, -1);
-                    context.drawImage(canvas_cache,-canvas_cache.width / 2,-canvas_cache.height / 2);
+                    context.drawImage(canvas_cache, -canvas_cache.width / 2, -canvas_cache.height / 2);
                     context.scale(1, -1);
                 }
 
@@ -240,7 +241,7 @@ if (!TurtleGraphics) {
                 }
                 oper = t.drawingEvents[i];
                 ts = oper[oper.length - 1];
-                //console.log(i + "/" + ts + oper [0] + "{" + oper [1] + "}" + t.turtleCanvas.delay)
+                console.log(i + "/" + ts + oper [0] + "{" + oper [1] + "}" + t.turtleCanvas.delay);
                 if (ts <= TurtleGraphics.renderClock || t.turtleCanvas.delay === 0) {
                     if (ts > TurtleGraphics.renderClock) {
                         //If we go past the render clock, jump it ahead
@@ -325,6 +326,7 @@ if (!TurtleGraphics) {
                             break;
                         case "TT": // turn
                             currentHead = oper[1];
+                            t.heading = oper[1];
                             break;
                         case "CL": // clear
                             clear_canvas(t.canvasID);
@@ -356,33 +358,30 @@ if (!TurtleGraphics) {
                             break;
                         case "NO":
                             break;
-                    } //else {
+                    }
+                    //else {
                     //console.log('unknown op: ' + oper[0]);
                     //} // end of oper[0] test
                 } // end of if ts < render clock
 
                 // Create cache point from which to start next render loop
-                if (i == t.aCount){
+                if (i == t.aCount) {
                     t.clearPoint = i;
                     var cache_context = canvas_cache.getContext('2d');
-
-                    //context.restore();
-                    //context.translate(context.canvas.width / 2, context.canvas.height / 2);
-                    //context.scale(1, 1);
-                    //context.save();
-
-                    cache_context.drawImage(context.canvas,0,0);
-
+                    cache_context.drawImage(context.canvas, 0, 0);
                     canvas_cache = cache_context.canvas;
                 }
             }
             // end of for
+
             // console.log(TurtleGraphics.renderClock + " / " + t.aCount)
             // console.log("------------------------------")
             t.aCount += incr;
             if (t.visible) {
                 // draw the turtle
-                t.drawturtle(currentHead.toAngle(), currentPos); // just use currentHead
+                //t.drawturtle(currentHead.toAngle(), currentPos); // just use currentHead
+                console.log(currentPos);
+                t.drawturtle(t.heading.toAngle(), currentPos);
             }
         }
         //if (t.aCount >= t.drawingEvents.length) {
@@ -399,6 +398,7 @@ if (!TurtleGraphics) {
                 context.lastCanvas.intervalId = setTimeout(render, context.lastCanvas.delay);
             }
         }
+
     };
     //
     //  Drawing Functions
@@ -449,12 +449,14 @@ if (!TurtleGraphics) {
         //    fillStyle = arguments[1];
         //    fillRect(0, 0, canvas.width, canvas.height);
         //}
+
         ctx.clearRect(-ctx.canvas.width / 2, -ctx.canvas.height / 2, ctx.canvas.width, ctx.canvas.height);
     };
+
     //
     // Define TurtleCanvas
     //
-    function TurtleCanvas (options) {
+    function TurtleCanvas(options) {
         this.canvasID = TurtleGraphics.defaults.canvasID;
         if (options.canvasID) {
             this.canvasID = options.canvasID;
@@ -599,8 +601,8 @@ if (!TurtleGraphics) {
         } else {
             this.context.translate(-llx, -ury);
         }
-        var xlinescale = (urx - llx) / this.canvas.width,
-            ylinescale = (ury - lly) / this.canvas.height;
+        xlinescale = (urx - llx) / this.canvas.width;
+        ylinescale = (ury - lly) / this.canvas.height;
         this.xptscale = xlinescale;
         this.yptscale = ylinescale;
         this.lineScale = Math.min(xlinescale, ylinescale);
@@ -662,7 +664,7 @@ if (!TurtleGraphics) {
         }
     };
     // Constructor for Turtle objects
-    function Turtle (opt) {
+    function Turtle(opt) {
         this.initialize(opt);
         TurtleGraphics.turtleList.push(this);
     }
@@ -680,7 +682,7 @@ if (!TurtleGraphics) {
         this.normal = new Vector([0, 0, -1]); // in z- direction
     };
     Turtle.prototype.initialize = function (opt) {
-        function turtleShapePoints () {
+        function turtleShapePoints() {
             var pl = [
                     [ 0, 16 ],
                     [ -2, 14 ],
@@ -715,7 +717,7 @@ if (!TurtleGraphics) {
             return res;
         }
 
-        function defaultShapePoints () {
+        function defaultShapePoints() {
             var pl = [
                     [ -10, 0 ],
                     [ 10, 0 ],
@@ -729,7 +731,7 @@ if (!TurtleGraphics) {
             return res;
         }
 
-        function circleShapePoints () {
+        function circleShapePoints() {
             var pl = [
                     [ 10, 0 ],
                     [ 9.51, 3.09 ],
@@ -760,7 +762,7 @@ if (!TurtleGraphics) {
             return res;
         }
 
-        function triangleShapePoints () {
+        function triangleShapePoints() {
             var pl = [
                     [ 10, -5.77 ],
                     [ 0, 11.55 ],
@@ -774,7 +776,7 @@ if (!TurtleGraphics) {
             return res;
         }
 
-        function squareShapePoints () {
+        function squareShapePoints() {
             var pl = [
                     [ 10, -10 ],
                     [ 10, 10 ],
@@ -789,7 +791,7 @@ if (!TurtleGraphics) {
             return res;
         }
 
-        function classicShapePoints () {
+        function classicShapePoints() {
             var pl = [
                     [ 0, 0 ],
                     [ -5, -9 ],
@@ -1471,9 +1473,9 @@ var $builtinmodule = function (name) {
             }
             if (!TurtleGraphics.defaults) {
                 TurtleGraphics.defaults = {
-                    animate : true,
+                    animate: true,
                     canvasID: Sk.canvas,
-                    degrees : true
+                    degrees: true
                 };
             } else if (Sk.canvas) {
                 TurtleGraphics.defaults.canvasID = Sk.canvas;
